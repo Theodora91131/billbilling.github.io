@@ -29,4 +29,4 @@ async function query(sql: string, values: any[] = []) {
 }
 
 // Export the query function
-export { query };
+export default query;

@@ -34,6 +34,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
+// add_account.ts
 const express_1 = __importDefault(require("express"));
 const router = express_1.default.Router();
 const account = __importStar(require("./utility/account"));

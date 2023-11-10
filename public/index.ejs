@@ -1,0 +1,23 @@
+<!-- views/index.ejs -->
+<html>
+
+<head>
+  <title>WebProgramming</title>
+</head>
+
+<body>
+  <h1>Express API</h1>
+
+  <ul>
+    <% accountData.forEach((data) => { %>
+      <li>
+        <strong>Member ID:</strong> <%= data.member_id %><br>
+        <strong>Account Name:</strong> <%= data.acc_name %><br>
+        <strong>Password:</strong> <%= data.password %>
+      </li>
+    <% }); %>
+  </ul>
+
+</body>
+
+</html>

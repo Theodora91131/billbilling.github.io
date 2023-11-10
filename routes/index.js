@@ -11,35 +11,22 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-Object.defineProperty(exports, "__esModule", { value: true });
-const promise_1 = __importDefault(require("mysql2/promise"));
-// Azure MySQL connection config
-const config = {
-    host: 'myway.mysql.database.azure.com',
-    user: 'ntou',
-    password: '01157CSEwork',
-    database: 'account',
-    port: 3306,
-    ssl: {
-        rejectUnauthorized: false
-    }
-};
-// Create MySQL connection pool
-const pool = promise_1.default.createPool(config);
-pool.getConnection()
-    .then((connection) => {
-    console.log('MySQL connected successfully!');
-    connection.release(); // Release the connection back to the pool
-})
-    .catch((err) => {
-    console.error(err);
-});
-// Example async query
-function query(sql, values = []) {
+// routes/index.ts
+const express_1 = __importDefault(require("express"));
+const account_1 = require("./utility/account"); // 使用正确的相对路径
+const router = express_1.default.Router();
+/* GET home page. */
+router.get('/', function (req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
-        const [rows] = yield pool.execute(sql, values);
-        return rows;
+        try {
+            const accountData = yield (0, account_1.account_query)();
+            // 在此处理 accountData，例如传递给视图
+            res.render('index', { title: 'Express', accountData });
+        }
+        catch (error) {
+            console.error('Error:', error);
+            next(error);
+        }
     });
-}
-// Export the query function
-exports.default = query;
+});
+module.exports = router;

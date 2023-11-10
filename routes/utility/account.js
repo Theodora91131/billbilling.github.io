@@ -8,13 +8,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.account_query = void 0;
-const asyncDB_1 = require("./asyncDB");
+// account.ts
+const asyncDB_1 = __importDefault(require("./asyncDB"));
 // 查詢會員資料
 function account_query() {
     return __awaiter(this, void 0, void 0, function* () {
-        const rows = yield (0, asyncDB_1.query)('SELECT * FROM account.member');
+        const rows = yield (0, asyncDB_1.default)('SELECT * FROM account.member');
         console.log(rows);
         return rows;
     });
