@@ -8,7 +8,7 @@ import cors from 'cors';
 import mysql from 'mysql';
 import { mysql as MySQLConfig } from './lib/config';
 import usersRouter from './routes/users';
-import indexRouter from './routes/index';
+// import indexRouter from './routes/index';
 import membersRouter from './routes/members';
 
 const pool = mysql.createPool(MySQLConfig);
@@ -27,7 +27,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     next();
 });
 
-app.use('/', indexRouter);
+// app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/members', membersRouter);
 

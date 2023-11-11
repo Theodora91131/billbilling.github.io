@@ -11,7 +11,7 @@ const cors_1 = __importDefault(require("cors"));
 const mysql_1 = __importDefault(require("mysql"));
 const config_1 = require("./lib/config");
 const users_1 = __importDefault(require("./routes/users"));
-const index_1 = __importDefault(require("./routes/index"));
+// import indexRouter from './routes/index';
 const members_1 = __importDefault(require("./routes/members"));
 const pool = mysql_1.default.createPool(config_1.mysql);
 const app = (0, express_1.default)();
@@ -25,7 +25,7 @@ app.use((req, res, next) => {
     req.pool = pool;
     next();
 });
-app.use('/', index_1.default);
+// app.use('/', indexRouter);
 app.use('/users', users_1.default);
 app.use('/members', members_1.default);
 exports.default = app;
