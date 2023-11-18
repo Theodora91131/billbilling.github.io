@@ -23,7 +23,7 @@ router.get('/:id', (req, res, next) => __awaiter(void 0, void 0, void 0, functio
             res.status(500).send('Internal Server Error');
             return;
         }
-        connection.query('SELECT charge_item.*, member.acc_name FROM charge_item INNER JOIN member ON charge_item.member_id = member.member_id WHERE charge_item.charge_item_id = ?', [itemId], (err, results) => {
+        connection.query('SELECT * FROM charge_item WHERE charge_item_id = ?', [itemId], (err, results) => {
             connection.release();
             if (err) {
                 console.error(err);
@@ -64,56 +64,69 @@ router.get('/', (req, res, next) => __awaiter(void 0, void 0, void 0, function* 
 router.post('/', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const pool = req.pool;
     const newChargeItem = req.body;
-    if (!newChargeItem || !newChargeItem.member_id || !newChargeItem.cItems_id || !newChargeItem.charge_name || !newChargeItem.price || !newChargeItem.date || !newChargeItem.chage_item_id) {
+    if (!newChargeItem || !newChargeItem.cItems_id || !newChargeItem.member_id || !newChargeItem.charge_name || !newChargeItem.price || !newChargeItem.date) {
         res.status(400).send('Bad Request: Invalid charge item data');
         return;
     }
-    try {
-        const connection = yield pool.getConnection();
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error(err);
+            res.status(500).send('Internal Server Error');
+            return;
+        }
         // 使用占位符進行參數綁定
-        const query = 'INSERT INTO charge_item SET ?';
-        const [result] = yield connection.query(query, [newChargeItem]);
-        connection.release();
-        res.status(201).json(Object.assign({ charge_item_id: result.insertId }, newChargeItem));
-    }
-    catch (error) {
-        console.error(error);
-        res.status(500).send('Internal Server Error');
-    }
+        connection.query('INSERT INTO charge_item SET cItems_id = ?, member_id = ?, charge_name = ?, price = ?, date = ? ', [newChargeItem.cItems_id, newChargeItem.member_id, newChargeItem.charge_name, newChargeItem.price, newChargeItem.date], (err, result) => {
+            connection.release();
+            if (err) {
+                console.error(err);
+                res.status(500).send('Internal Server Error');
+                return;
+            }
+            res.status(201).json(Object.assign({ chage_item_id: result.insertId }, newChargeItem));
+        });
+    });
 }));
-// PUT /charge_items/:id - 更新項目
-router.put('/:id', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+//PUT /charge_items/:id - 更新項目
+router.put('/:id', (req, res, next) => {
     const pool = req.pool;
     const itemId = req.params.id;
     const updatedChargeItem = req.body;
-    try {
-        const connection = yield pool.getConnection();
-        // 使用占位符進行參數綁定
-        const query = 'UPDATE charge_item SET ? WHERE charge_item_id = ?';
-        yield connection.query(query, [updatedChargeItem, itemId]);
-        connection.release();
-        res.status(200).send('Charge item updated successfully');
-    }
-    catch (error) {
-        console.error(error);
-        res.status(500).send('Internal Server Error');
-    }
-}));
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error(err);
+            res.status(500).send('Internal Server Error');
+            return;
+        }
+        connection.query('UPDATE charge_item SET ? WHERE charge_item_id = ?', [updatedChargeItem, itemId], (err) => {
+            connection.release();
+            if (err) {
+                console.error(err);
+                res.status(500).send('Internal Server Error');
+                return;
+            }
+            res.status(200).send('Member updated successfully');
+        });
+    });
+});
 // DELETE /charge_items/:id - 刪除項目
-router.delete('/:id', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+router.delete('/:id', (req, res, next) => {
     const pool = req.pool;
     const itemId = req.params.id;
-    try {
-        const connection = yield pool.getConnection();
-        // 使用占位符進行參數綁定
-        const query = 'DELETE FROM charge_item WHERE charge_item_id = ?';
-        yield connection.query(query, [itemId]);
-        connection.release();
-        res.status(200).send('Charge item deleted successfully');
-    }
-    catch (error) {
-        console.error(error);
-        res.status(500).send('Internal Server Error');
-    }
-}));
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error(err);
+            res.status(500).send('Internal Server Error');
+            return;
+        }
+        connection.query('DELETE FROM charge_item WHERE charge_item_id = ?', [itemId], (err) => {
+            connection.release();
+            if (err) {
+                console.error(err);
+                res.status(500).send('Internal Server Error');
+                return;
+            }
+            res.status(200).send('Member deleted successfully');
+        });
+    });
+});
 module.exports = router;

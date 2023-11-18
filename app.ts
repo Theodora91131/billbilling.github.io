@@ -12,8 +12,8 @@ import usersRouter from './routes/users';
 // import indexRouter from './routes/index';
 import membersRouter from './routes/members';
 import chargeitemRouter from './routes/charge_item';
+import cItemRouter from './routes/cItem';
 const pool = mysql.createPool(MySQLConfig);
-
 const app: Express = express();
 
 app.use(cors());
@@ -32,6 +32,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 app.use('/users', usersRouter);
 app.use('/members', membersRouter);
 app.use('/chargeitem', chargeitemRouter);
+app.use('/cItem', cItemRouter);
 // app.use('/account/add', accountAddFormRouter);
 
 export default app;

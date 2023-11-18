@@ -14,7 +14,7 @@ router.get('/:id', (req: Request, res: Response, next: NextFunction) => {
             return;
         }
 
-        connection.query('SELECT * FROM cItem WHERE cItems_id = ?', [cItemsId], (err: any, results: any) => {
+        connection.query('SELECT * FROM cItems WHERE cItems_id = ?', [cItemsId], (err: any, results: any) => {
             connection.release();
 
             if (err) {
@@ -44,7 +44,7 @@ router.get('/', (req: Request, res: Response, next: NextFunction) => {
             return;
         }
 
-        connection.query('SELECT * FROM cItem', (err: any, items: any) => {
+        connection.query('SELECT * FROM cItems', (err: any, items: any) => {
             connection.release();
 
             if (err) {
@@ -77,7 +77,7 @@ router.put('/:id', (req: Request, res: Response, next: NextFunction) => {
             return;
         }
 
-        connection.query('UPDATE cItem SET cItems_name = ? WHERE cItems_id = ?', [updatedItem.cItems_name, cItemsId], (err: any) => {
+        connection.query('UPDATE cItems SET cItems_name = ? WHERE cItems_id = ?', [updatedItem.cItems_name, cItemsId], (err: any) => {
             connection.release();
 
             if (err) {
@@ -91,4 +91,60 @@ router.put('/:id', (req: Request, res: Response, next: NextFunction) => {
     });
 });
 
+// POST /cItems - 新增消費類別
+router.post('/', (req: Request, res: Response, next: NextFunction) => {
+    const pool = (req as any).pool;
+    const newItem = req.body;
+
+    if (!newItem || !newItem.member_id || !newItem.cItems_name) {
+        res.status(400).send('Bad Request: Invalid member data');
+        return;
+    }
+
+    pool.getConnection((err: any, connection: any) => {
+        if (err) {
+            console.error(err);
+            res.status(500).send('Internal Server Error');
+            return;
+        }
+
+        // 使用占位符進行參數綁定
+        connection.query('INSERT INTO cItems SET member_id = ?, cItems_name = ?', [newItem.member_id, newItem.cItems_name], (err: any, result: any) => {
+            connection.release();
+
+            if (err) {
+                console.error(err);
+                res.status(500).send('Internal Server Error');
+                return;
+            }
+
+            res.status(201).json({ cItems_id: result.insertId, ...newItem });
+        });
+    });
+});
+// DELETE /cItems/:id - 刪除消費類別
+router.delete('/:id', (req: Request, res: Response, next: NextFunction) => {
+    const pool = (req as any).pool;
+    const cItemsId = req.params.id;
+
+    pool.getConnection((err: any, connection: any) => {
+        if (err) {
+            console.error(err);
+            res.status(500).send('Internal Server Error');
+            return;
+        }
+
+        connection.query('DELETE FROM cItems WHERE cItems_id = ?', [cItemsId], (err: any) => {
+            connection.release();
+
+            if (err) {
+                console.error(err);
+                res.status(500).send('Internal Server Error');
+                return;
+            }
+
+            res.status(200).send('Member deleted successfully');
+        });
+    });
+});
 export = router;
