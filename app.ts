@@ -8,9 +8,10 @@ import cors from 'cors';
 import mysql from 'mysql';
 import { mysql as MySQLConfig } from './lib/config';
 import usersRouter from './routes/users';
+// import accountAddFormRouter from './routes/add_account';
 // import indexRouter from './routes/index';
 import membersRouter from './routes/members';
-
+import chargeitemRouter from './routes/charge_item';
 const pool = mysql.createPool(MySQLConfig);
 
 const app: Express = express();
@@ -30,6 +31,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 // app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/members', membersRouter);
-
+app.use('/chargeitem', chargeitemRouter);
+// app.use('/account/add', accountAddFormRouter);
 
 export default app;

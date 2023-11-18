@@ -11,8 +11,10 @@ const cors_1 = __importDefault(require("cors"));
 const mysql_1 = __importDefault(require("mysql"));
 const config_1 = require("./lib/config");
 const users_1 = __importDefault(require("./routes/users"));
+// import accountAddFormRouter from './routes/add_account';
 // import indexRouter from './routes/index';
 const members_1 = __importDefault(require("./routes/members"));
+const charge_item_1 = __importDefault(require("./routes/charge_item"));
 const pool = mysql_1.default.createPool(config_1.mysql);
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)());
@@ -28,4 +30,6 @@ app.use((req, res, next) => {
 // app.use('/', indexRouter);
 app.use('/users', users_1.default);
 app.use('/members', members_1.default);
+app.use('/chargeitem', charge_item_1.default);
+// app.use('/account/add', accountAddFormRouter);
 exports.default = app;
