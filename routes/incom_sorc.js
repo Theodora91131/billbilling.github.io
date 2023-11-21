@@ -4,17 +4,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 const express_1 = __importDefault(require("express"));
 const router = express_1.default.Router();
-// GET /members/:id - 根據 ID 取得單一會員
+// GET /incom_sorc/:id - 根據 ID 取得單一項目
 router.get('/:id', (req, res, next) => {
     const pool = req.pool;
-    const memberId = req.params.id;
+    const incomsorcId = req.params.id;
     pool.getConnection((err, connection) => {
         if (err) {
             console.error(err);
             res.status(500).send('Internal Server Error');
             return;
         }
-        connection.query('SELECT * FROM member WHERE member_id = ?', [memberId], (err, results) => {
+        connection.query('SELECT * FROM incom_sorc WHERE incom_sorc_id = ?', [incomsorcId], (err, results) => {
             connection.release();
             if (err) {
                 console.error(err);
@@ -25,13 +25,13 @@ router.get('/:id', (req, res, next) => {
                 res.status(404).send('not found');
             }
             else {
-                const member = results[0]; // 取第一筆資料
-                res.json(member);
+                const item = results[0]; // 取第一筆資料
+                res.json(item);
             }
         });
     });
 });
-// GET /members - 取得所有會員
+// GET /incom_sorc - 取得所有項目
 router.get('/', (req, res, next) => {
     const pool = req.pool;
     pool.getConnection((err, connection) => {
@@ -40,23 +40,25 @@ router.get('/', (req, res, next) => {
             res.status(500).send('Internal Server Error');
             return;
         }
-        connection.query('SELECT * FROM member', (err, members) => {
+        connection.query('SELECT * FROM incom_sorc', (err, items) => {
             connection.release();
             if (err) {
                 console.error(err);
                 res.status(500).send('Internal Server Error');
                 return;
             }
-            res.json(members);
+            res.json(items);
         });
     });
 });
-// POST /members - 新增會員
-router.post('/', (req, res, next) => {
+// PUT /incom_sorc/:id - 更新項目
+router.put('/:id', (req, res, next) => {
     const pool = req.pool;
-    const newMember = req.body;
-    if (!newMember || !newMember.acc_name || !newMember.password) {
-        res.status(400).send('Bad Request: Invalid member data');
+    const incomsorcId = req.params.id;
+    const updatedIncomsorc = req.body;
+    // 確保只有 incom_sorc 可以修改
+    if (!updatedIncomsorc || !updatedIncomsorc.sorc_Items) {
+        res.status(400).send('Bad Request: Invalid item data');
         return;
     }
     pool.getConnection((err, connection) => {
@@ -65,30 +67,7 @@ router.post('/', (req, res, next) => {
             res.status(500).send('Internal Server Error');
             return;
         }
-        // 使用占位符進行參數綁定
-        connection.query('INSERT INTO member SET acc_name = ?, password = ?', [newMember.acc_name, newMember.password], (err, result) => {
-            connection.release();
-            if (err) {
-                console.error(err);
-                res.status(500).send('Internal Server Error');
-                return;
-            }
-            res.status(201).json(Object.assign({ member_id: result.insertId }, newMember));
-        });
-    });
-});
-// PUT /members/:id - 更新會員
-router.put('/:id', (req, res, next) => {
-    const pool = req.pool;
-    const memberId = req.params.id;
-    const updatedMember = req.body;
-    pool.getConnection((err, connection) => {
-        if (err) {
-            console.error(err);
-            res.status(500).send('Internal Server Error');
-            return;
-        }
-        connection.query('UPDATE member SET ? WHERE member_id = ?', [updatedMember, memberId], (err) => {
+        connection.query('UPDATE incom_sorc SET sorc_Items = ? WHERE incom_sorc_id = ?', [updatedIncomsorc.sorc_Items, incomsorcId], (err) => {
             connection.release();
             if (err) {
                 console.error(err);
@@ -99,17 +78,43 @@ router.put('/:id', (req, res, next) => {
         });
     });
 });
-// DELETE /members/:id - 刪除會員
-router.delete('/:id', (req, res, next) => {
+// POST /incom_sorc - 新增收益類別
+router.post('/', (req, res, next) => {
     const pool = req.pool;
-    const memberId = req.params.id;
+    const newincom = req.body;
+    if (!newincom || !newincom.member_id || !newincom.sorc_Items) {
+        res.status(400).send('Bad Request: Invalid member data');
+        return;
+    }
     pool.getConnection((err, connection) => {
         if (err) {
             console.error(err);
             res.status(500).send('Internal Server Error');
             return;
         }
-        connection.query('DELETE FROM member WHERE member_id = ?', [memberId], (err) => {
+        // 使用占位符進行參數綁定
+        connection.query('INSERT INTO incom_sorc SET member_id = ?, sorc_Items = ?', [newincom.member_id, newincom.sorc_Items], (err, result) => {
+            connection.release();
+            if (err) {
+                console.error(err);
+                res.status(500).send('Internal Server Error');
+                return;
+            }
+            res.status(201).json(Object.assign({ cItems_id: result.insertId }, newincom));
+        });
+    });
+});
+// DELETE /incom_sorc/:id - 刪除消費類別
+router.delete('/:id', (req, res, next) => {
+    const pool = req.pool;
+    const incomsorcId = req.params.id;
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error(err);
+            res.status(500).send('Internal Server Error');
+            return;
+        }
+        connection.query('DELETE FROM incom_sorc WHERE incom_sorc_id = ?', [incomsorcId], (err) => {
             connection.release();
             if (err) {
                 console.error(err);

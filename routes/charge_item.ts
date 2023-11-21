@@ -24,7 +24,7 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
             }
 
             if (results.length === 0) {
-                res.status(404).send('Member not found');
+                res.status(404).send('not found');
             } else {
                 const member = results[0]; // 取第一筆資料
                 res.json(member);
@@ -113,7 +113,7 @@ router.put('/:id', (req: Request, res: Response, next: NextFunction) => {
                 return;
             }
 
-            res.status(200).send('Member updated successfully');
+            res.status(200).send('updated successfully');
         });
     });
 });
@@ -140,7 +140,7 @@ router.delete('/:id', (req: Request, res: Response, next: NextFunction) => {
                 return;
             }
 
-            res.status(200).send('Member deleted successfully');
+            res.status(200).send('deleted successfully');
         });
     });
 });

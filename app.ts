@@ -13,6 +13,8 @@ import usersRouter from './routes/users';
 import membersRouter from './routes/members';
 import chargeitemRouter from './routes/charge_item';
 import cItemRouter from './routes/cItem';
+import IncomsorcRouter from './routes/incom_sorc';
+import Income from './routes/income';
 const pool = mysql.createPool(MySQLConfig);
 const app: Express = express();
 
@@ -33,6 +35,8 @@ app.use('/users', usersRouter);
 app.use('/members', membersRouter);
 app.use('/chargeitem', chargeitemRouter);
 app.use('/cItem', cItemRouter);
+app.use('/Incomsorc', IncomsorcRouter);
+app.use('/income', Income);
 // app.use('/account/add', accountAddFormRouter);
 
 export default app;

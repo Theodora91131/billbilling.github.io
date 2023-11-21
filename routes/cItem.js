@@ -22,7 +22,7 @@ router.get('/:id', (req, res, next) => {
                 return;
             }
             if (results.length === 0) {
-                res.status(404).send('Item not found');
+                res.status(404).send('not found');
             }
             else {
                 const item = results[0]; // 取第一筆資料
@@ -74,7 +74,7 @@ router.put('/:id', (req, res, next) => {
                 res.status(500).send('Internal Server Error');
                 return;
             }
-            res.status(200).send('Item updated successfully');
+            res.status(200).send('updated successfully');
         });
     });
 });
@@ -121,7 +121,7 @@ router.delete('/:id', (req, res, next) => {
                 res.status(500).send('Internal Server Error');
                 return;
             }
-            res.status(200).send('Member deleted successfully');
+            res.status(200).send('deleted successfully');
         });
     });
 });

@@ -2,10 +2,10 @@ import express, { Request, Response, NextFunction } from 'express';
 
 const router = express.Router();
 
-// GET /cItems/:id - 根據 ID 取得單一項目
-router.get('/:id', (req: Request, res: Response, next: NextFunction) => {
+// GET /income/:id - 根據 ID 取得單一項目
+router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
     const pool = (req as any).pool;
-    const cItemsId = req.params.id;
+    const incomeId = req.params.id;
 
     pool.getConnection((err: any, connection: any) => {
         if (err) {
@@ -14,7 +14,7 @@ router.get('/:id', (req: Request, res: Response, next: NextFunction) => {
             return;
         }
 
-        connection.query('SELECT * FROM cItems WHERE cItems_id = ?', [cItemsId], (err: any, results: any) => {
+        connection.query('SELECT * FROM income WHERE income_id = ?', [incomeId], (err: any, results: any) => {
             connection.release();
 
             if (err) {
@@ -26,17 +26,16 @@ router.get('/:id', (req: Request, res: Response, next: NextFunction) => {
             if (results.length === 0) {
                 res.status(404).send('not found');
             } else {
-                const item = results[0]; // 取第一筆資料
-                res.json(item);
+                const member = results[0]; // 取第一筆資料
+                res.json(member);
             }
         });
     });
 });
 
-// GET /cItems - 取得所有項目
-router.get('/', (req: Request, res: Response, next: NextFunction) => {
+// GET /income - 取得所有項目
+router.get('/', async (req: Request, res: Response, next: NextFunction) => {
     const pool = (req as any).pool;
-
     pool.getConnection((err: any, connection: any) => {
         if (err) {
             console.error(err);
@@ -44,7 +43,7 @@ router.get('/', (req: Request, res: Response, next: NextFunction) => {
             return;
         }
 
-        connection.query('SELECT * FROM cItems', (err: any, items: any) => {
+        connection.query('SELECT * FROM income', (err: any, members: any) => {
             connection.release();
 
             if (err) {
@@ -53,20 +52,19 @@ router.get('/', (req: Request, res: Response, next: NextFunction) => {
                 return;
             }
 
-            res.json(items);
+            res.json(members);
         });
     });
 });
 
-// PUT /cItems/:id - 更新項目
-router.put('/:id', (req: Request, res: Response, next: NextFunction) => {
-    const pool = (req as any).pool;
-    const cItemsId = req.params.id;
-    const updatedItem = req.body;
 
-    // 確保只有 cItems_name 可以修改
-    if (!updatedItem || !updatedItem.cItems_name) {
-        res.status(400).send('Bad Request: Invalid item data');
+// POST /income - 新增項目
+router.post('/', async (req: Request, res: Response, next: NextFunction) => {
+    const pool = (req as any).pool;
+    const newincome = req.body;
+
+    if (!newincome || !newincome.incom_sorc_id || !newincome.member_id || !newincome.price || !newincome.date) {
+        res.status(400).send('Bad Request: Invalid charge item data');
         return;
     }
 
@@ -77,7 +75,36 @@ router.put('/:id', (req: Request, res: Response, next: NextFunction) => {
             return;
         }
 
-        connection.query('UPDATE cItems SET cItems_name = ? WHERE cItems_id = ?', [updatedItem.cItems_name, cItemsId], (err: any) => {
+        // 使用占位符進行參數綁定
+        connection.query('INSERT INTO income SET incom_sorc_id = ?, member_id = ?, price = ?, date = ? ', [newincome.incom_sorc_id, newincome.member_id, newincome.price, newincome.date], (err: any, result: any) => {
+            connection.release();
+
+            if (err) {
+                console.error(err);
+                res.status(500).send('Internal Server Error');
+                return;
+            }
+
+            res.status(201).json({ chage_item_id: result.insertId, ...newincome });
+        });
+    });
+});
+
+//PUT /income/:id - 更新項目
+router.put('/:id', (req: Request, res: Response, next: NextFunction) => {
+    const pool = (req as any).pool;
+    const incomeId = req.params.id;
+    const updatedincome= req.body;
+
+
+    pool.getConnection((err: any, connection: any) => {
+        if (err) {
+            console.error(err);
+            res.status(500).send('Internal Server Error');
+            return;
+        }
+
+        connection.query('UPDATE income SET ? WHERE income_id = ?', [updatedincome, incomeId], (err: any) => {
             connection.release();
 
             if (err) {
@@ -91,41 +118,11 @@ router.put('/:id', (req: Request, res: Response, next: NextFunction) => {
     });
 });
 
-// POST /cItems - 新增消費類別
-router.post('/', (req: Request, res: Response, next: NextFunction) => {
-    const pool = (req as any).pool;
-    const newItem = req.body;
 
-    if (!newItem || !newItem.member_id || !newItem.cItems_name) {
-        res.status(400).send('Bad Request: Invalid member data');
-        return;
-    }
-
-    pool.getConnection((err: any, connection: any) => {
-        if (err) {
-            console.error(err);
-            res.status(500).send('Internal Server Error');
-            return;
-        }
-
-        // 使用占位符進行參數綁定
-        connection.query('INSERT INTO cItems SET member_id = ?, cItems_name = ?', [newItem.member_id, newItem.cItems_name], (err: any, result: any) => {
-            connection.release();
-
-            if (err) {
-                console.error(err);
-                res.status(500).send('Internal Server Error');
-                return;
-            }
-
-            res.status(201).json({ cItems_id: result.insertId, ...newItem });
-        });
-    });
-});
-// DELETE /cItems/:id - 刪除消費類別
+// DELETE /income/:id - 刪除項目
 router.delete('/:id', (req: Request, res: Response, next: NextFunction) => {
     const pool = (req as any).pool;
-    const cItemsId = req.params.id;
+    const incomeId = req.params.id;
 
     pool.getConnection((err: any, connection: any) => {
         if (err) {
@@ -134,7 +131,7 @@ router.delete('/:id', (req: Request, res: Response, next: NextFunction) => {
             return;
         }
 
-        connection.query('DELETE FROM cItems WHERE cItems_id = ?', [cItemsId], (err: any) => {
+        connection.query('DELETE FROM income WHERE income_id = ?', [incomeId], (err: any) => {
             connection.release();
 
             if (err) {
@@ -147,4 +144,5 @@ router.delete('/:id', (req: Request, res: Response, next: NextFunction) => {
         });
     });
 });
+
 export = router;

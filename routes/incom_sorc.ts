@@ -2,10 +2,10 @@ import express, { Request, Response, NextFunction } from 'express';
 
 const router = express.Router();
 
-// GET /cItems/:id - 根據 ID 取得單一項目
+// GET /incom_sorc/:id - 根據 ID 取得單一項目
 router.get('/:id', (req: Request, res: Response, next: NextFunction) => {
     const pool = (req as any).pool;
-    const cItemsId = req.params.id;
+    const incomsorcId = req.params.id;
 
     pool.getConnection((err: any, connection: any) => {
         if (err) {
@@ -14,7 +14,7 @@ router.get('/:id', (req: Request, res: Response, next: NextFunction) => {
             return;
         }
 
-        connection.query('SELECT * FROM cItems WHERE cItems_id = ?', [cItemsId], (err: any, results: any) => {
+        connection.query('SELECT * FROM incom_sorc WHERE incom_sorc_id = ?', [incomsorcId], (err: any, results: any) => {
             connection.release();
 
             if (err) {
@@ -33,7 +33,7 @@ router.get('/:id', (req: Request, res: Response, next: NextFunction) => {
     });
 });
 
-// GET /cItems - 取得所有項目
+// GET /incom_sorc - 取得所有項目
 router.get('/', (req: Request, res: Response, next: NextFunction) => {
     const pool = (req as any).pool;
 
@@ -44,7 +44,7 @@ router.get('/', (req: Request, res: Response, next: NextFunction) => {
             return;
         }
 
-        connection.query('SELECT * FROM cItems', (err: any, items: any) => {
+        connection.query('SELECT * FROM incom_sorc', (err: any, items: any) => {
             connection.release();
 
             if (err) {
@@ -58,14 +58,14 @@ router.get('/', (req: Request, res: Response, next: NextFunction) => {
     });
 });
 
-// PUT /cItems/:id - 更新項目
+// PUT /incom_sorc/:id - 更新項目
 router.put('/:id', (req: Request, res: Response, next: NextFunction) => {
     const pool = (req as any).pool;
-    const cItemsId = req.params.id;
-    const updatedItem = req.body;
+    const incomsorcId = req.params.id;
+    const updatedIncomsorc = req.body;
 
-    // 確保只有 cItems_name 可以修改
-    if (!updatedItem || !updatedItem.cItems_name) {
+    // 確保只有 incom_sorc 可以修改
+    if (!updatedIncomsorc || !updatedIncomsorc.sorc_Items) {
         res.status(400).send('Bad Request: Invalid item data');
         return;
     }
@@ -77,7 +77,7 @@ router.put('/:id', (req: Request, res: Response, next: NextFunction) => {
             return;
         }
 
-        connection.query('UPDATE cItems SET cItems_name = ? WHERE cItems_id = ?', [updatedItem.cItems_name, cItemsId], (err: any) => {
+        connection.query('UPDATE incom_sorc SET sorc_Items = ? WHERE incom_sorc_id = ?', [updatedIncomsorc.sorc_Items, incomsorcId], (err: any) => {
             connection.release();
 
             if (err) {
@@ -91,12 +91,12 @@ router.put('/:id', (req: Request, res: Response, next: NextFunction) => {
     });
 });
 
-// POST /cItems - 新增消費類別
+// POST /incom_sorc - 新增收益類別
 router.post('/', (req: Request, res: Response, next: NextFunction) => {
     const pool = (req as any).pool;
-    const newItem = req.body;
+    const newincom = req.body;
 
-    if (!newItem || !newItem.member_id || !newItem.cItems_name) {
+    if (!newincom || !newincom.member_id || !newincom.sorc_Items) {
         res.status(400).send('Bad Request: Invalid member data');
         return;
     }
@@ -109,7 +109,7 @@ router.post('/', (req: Request, res: Response, next: NextFunction) => {
         }
 
         // 使用占位符進行參數綁定
-        connection.query('INSERT INTO cItems SET member_id = ?, cItems_name = ?', [newItem.member_id, newItem.cItems_name], (err: any, result: any) => {
+        connection.query('INSERT INTO incom_sorc SET member_id = ?, sorc_Items = ?', [newincom.member_id, newincom.sorc_Items], (err: any, result: any) => {
             connection.release();
 
             if (err) {
@@ -118,14 +118,14 @@ router.post('/', (req: Request, res: Response, next: NextFunction) => {
                 return;
             }
 
-            res.status(201).json({ cItems_id: result.insertId, ...newItem });
+            res.status(201).json({ incom_sorc_id: result.insertId, ...newincom });
         });
     });
 });
-// DELETE /cItems/:id - 刪除消費類別
+// DELETE /incom_sorc/:id - 刪除消費類別
 router.delete('/:id', (req: Request, res: Response, next: NextFunction) => {
     const pool = (req as any).pool;
-    const cItemsId = req.params.id;
+    const incomsorcId = req.params.id;
 
     pool.getConnection((err: any, connection: any) => {
         if (err) {
@@ -134,7 +134,7 @@ router.delete('/:id', (req: Request, res: Response, next: NextFunction) => {
             return;
         }
 
-        connection.query('DELETE FROM cItems WHERE cItems_id = ?', [cItemsId], (err: any) => {
+        connection.query('DELETE FROM incom_sorc WHERE incom_sorc_id = ?', [incomsorcId], (err: any) => {
             connection.release();
 
             if (err) {

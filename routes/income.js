@@ -1,20 +1,29 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 const express_1 = __importDefault(require("express"));
 const router = express_1.default.Router();
-// GET /members/:id - 根據 ID 取得單一會員
-router.get('/:id', (req, res, next) => {
+// GET /income/:id - 根據 ID 取得單一項目
+router.get('/:id', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const pool = req.pool;
-    const memberId = req.params.id;
+    const incomeId = req.params.id;
     pool.getConnection((err, connection) => {
         if (err) {
             console.error(err);
             res.status(500).send('Internal Server Error');
             return;
         }
-        connection.query('SELECT * FROM member WHERE member_id = ?', [memberId], (err, results) => {
+        connection.query('SELECT * FROM income WHERE income_id = ?', [incomeId], (err, results) => {
             connection.release();
             if (err) {
                 console.error(err);
@@ -30,9 +39,9 @@ router.get('/:id', (req, res, next) => {
             }
         });
     });
-});
-// GET /members - 取得所有會員
-router.get('/', (req, res, next) => {
+}));
+// GET /income - 取得所有項目
+router.get('/', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const pool = req.pool;
     pool.getConnection((err, connection) => {
         if (err) {
@@ -40,7 +49,7 @@ router.get('/', (req, res, next) => {
             res.status(500).send('Internal Server Error');
             return;
         }
-        connection.query('SELECT * FROM member', (err, members) => {
+        connection.query('SELECT * FROM income', (err, members) => {
             connection.release();
             if (err) {
                 console.error(err);
@@ -50,13 +59,13 @@ router.get('/', (req, res, next) => {
             res.json(members);
         });
     });
-});
-// POST /members - 新增會員
-router.post('/', (req, res, next) => {
+}));
+// POST /income - 新增項目
+router.post('/', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const pool = req.pool;
-    const newMember = req.body;
-    if (!newMember || !newMember.acc_name || !newMember.password) {
-        res.status(400).send('Bad Request: Invalid member data');
+    const newincome = req.body;
+    if (!newincome || !newincome.incom_sorc_id || !newincome.member_id || !newincome.price || !newincome.date) {
+        res.status(400).send('Bad Request: Invalid charge item data');
         return;
     }
     pool.getConnection((err, connection) => {
@@ -66,29 +75,29 @@ router.post('/', (req, res, next) => {
             return;
         }
         // 使用占位符進行參數綁定
-        connection.query('INSERT INTO member SET acc_name = ?, password = ?', [newMember.acc_name, newMember.password], (err, result) => {
+        connection.query('INSERT INTO income SET incom_sorc_id = ?, member_id = ?, price = ?, date = ? ', [newincome.incom_sorc_id, newincome.member_id, newincome.price, newincome.date], (err, result) => {
             connection.release();
             if (err) {
                 console.error(err);
                 res.status(500).send('Internal Server Error');
                 return;
             }
-            res.status(201).json(Object.assign({ member_id: result.insertId }, newMember));
+            res.status(201).json(Object.assign({ chage_item_id: result.insertId }, newincome));
         });
     });
-});
-// PUT /members/:id - 更新會員
+}));
+//PUT /income/:id - 更新項目
 router.put('/:id', (req, res, next) => {
     const pool = req.pool;
-    const memberId = req.params.id;
-    const updatedMember = req.body;
+    const incomeId = req.params.id;
+    const updatedincome = req.body;
     pool.getConnection((err, connection) => {
         if (err) {
             console.error(err);
             res.status(500).send('Internal Server Error');
             return;
         }
-        connection.query('UPDATE member SET ? WHERE member_id = ?', [updatedMember, memberId], (err) => {
+        connection.query('UPDATE income SET ? WHERE income_id = ?', [updatedincome, incomeId], (err) => {
             connection.release();
             if (err) {
                 console.error(err);
@@ -99,17 +108,17 @@ router.put('/:id', (req, res, next) => {
         });
     });
 });
-// DELETE /members/:id - 刪除會員
+// DELETE /income/:id - 刪除項目
 router.delete('/:id', (req, res, next) => {
     const pool = req.pool;
-    const memberId = req.params.id;
+    const incomeId = req.params.id;
     pool.getConnection((err, connection) => {
         if (err) {
             console.error(err);
             res.status(500).send('Internal Server Error');
             return;
         }
-        connection.query('DELETE FROM member WHERE member_id = ?', [memberId], (err) => {
+        connection.query('DELETE FROM income WHERE income_id = ?', [incomeId], (err) => {
             connection.release();
             if (err) {
                 console.error(err);
