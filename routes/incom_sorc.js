@@ -100,7 +100,7 @@ router.post('/', (req, res, next) => {
                 res.status(500).send('Internal Server Error');
                 return;
             }
-            res.status(201).json(Object.assign({ cItems_id: result.insertId }, newincom));
+            res.status(201).json(Object.assign({ incom_sorc_id: result.insertId }, newincom));
         });
     });
 });

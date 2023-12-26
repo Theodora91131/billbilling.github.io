@@ -55,7 +55,7 @@ router.get('/', (req, res, next) => {
 router.post('/', (req, res, next) => {
     const pool = req.pool;
     const newMember = req.body;
-    if (!newMember || !newMember.acc_name || !newMember.password) {
+    if (!newMember || !newMember.acc_name || !newMember.password || !newMember.goal || !newMember.picture) {
         res.status(400).send('Bad Request: Invalid member data');
         return;
     }
@@ -66,7 +66,7 @@ router.post('/', (req, res, next) => {
             return;
         }
         // 使用占位符進行參數綁定
-        connection.query('INSERT INTO member SET acc_name = ?, password = ?', [newMember.acc_name, newMember.password], (err, result) => {
+        connection.query('INSERT INTO member SET acc_name = ?, password = ?, goal = ?, picture = ?', [newMember.acc_name, newMember.password, newMember.goal, newMember.picture], (err, result) => {
             connection.release();
             if (err) {
                 console.error(err);
